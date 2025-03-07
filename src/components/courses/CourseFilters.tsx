@@ -55,7 +55,7 @@ export const CourseFilters = ({ onApplyFilters }: CourseFiltersProps) => {
             <SelectValue placeholder="All Categories" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Categories</SelectItem>
+            <SelectItem value="all">All Categories</SelectItem>
             {categories.map((cat) => (
               <SelectItem key={cat} value={cat}>{cat}</SelectItem>
             ))}
@@ -73,7 +73,7 @@ export const CourseFilters = ({ onApplyFilters }: CourseFiltersProps) => {
             <SelectValue placeholder="All Levels" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Levels</SelectItem>
+            <SelectItem value="all">All Levels</SelectItem>
             {levels.map((lvl) => (
               <SelectItem key={lvl} value={lvl}>{lvl}</SelectItem>
             ))}
@@ -93,7 +93,7 @@ export const CourseFilters = ({ onApplyFilters }: CourseFiltersProps) => {
           max={200}
           step={5}
           value={priceRange}
-          onValueChange={setPriceRange}
+          onValueChange={(value) => setPriceRange(value as [number, number])}
           className="py-4"
         />
       </div>

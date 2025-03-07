@@ -14,7 +14,7 @@ export const CoursesList = ({ courses, showProgress = false }: CoursesListProps)
         <CourseCard key={course.id} course={course} showProgress={showProgress} />
       ))}
       
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .course-card-image {
           width: 100%;
           height: 180px;
@@ -34,7 +34,7 @@ export const CoursesList = ({ courses, showProgress = false }: CoursesListProps)
           border-radius: 3px;
           transition: width 0.3s ease;
         }
-      `}</style>
+      `}} />
     </div>
   );
 };
