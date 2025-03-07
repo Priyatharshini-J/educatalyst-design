@@ -5,8 +5,11 @@ import { Footer } from '@/components/layout/Footer';
 import { HeroSection } from '@/components/home/HeroSection';
 import { PopularCourses } from '@/components/home/PopularCourses';
 import { Categories } from '@/components/home/Categories';
+import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
+  const navigate = useNavigate();
+  
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />

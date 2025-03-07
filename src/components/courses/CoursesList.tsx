@@ -13,6 +13,28 @@ export const CoursesList = ({ courses, showProgress = false }: CoursesListProps)
       {courses.map((course) => (
         <CourseCard key={course.id} course={course} showProgress={showProgress} />
       ))}
+      
+      <style jsx>{`
+        .course-card-image {
+          width: 100%;
+          height: 180px;
+          object-fit: cover;
+        }
+        
+        .progress-bar {
+          height: 6px;
+          background-color: #e5e7eb;
+          border-radius: 3px;
+          overflow: hidden;
+        }
+        
+        .progress-value {
+          height: 100%;
+          background-color: hsl(var(--primary));
+          border-radius: 3px;
+          transition: width 0.3s ease;
+        }
+      `}</style>
     </div>
   );
 };
