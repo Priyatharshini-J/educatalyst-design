@@ -13,27 +13,21 @@ import {
 import { Slider } from "@/components/ui/slider";
 
 type CourseFiltersProps = {
-  onFilterChange: (filters: any) => void;
-  categories: string[];
-  levels: string[];
+  onApplyFilters: (category: string | null, level: string | null, priceRange: [number, number] | null) => void;
 };
 
-export const CourseFilters = ({ onFilterChange, categories, levels }: CourseFiltersProps) => {
+export const CourseFilters = ({ onApplyFilters }: CourseFiltersProps) => {
   const [search, setSearch] = React.useState('');
-  const [category, setCategory] = React.useState('');
-  const [level, setLevel] = React.useState('');
-  const [priceRange, setPriceRange] = React.useState([0, 200]);
+  const [category, setCategory] = React.useState<string | null>(null);
+  const [level, setLevel] = React.useState<string | null>(null);
+  const [priceRange, setPriceRange] = React.useState<[number, number]>([0, 200]);
   
   React.useEffect(() => {
-    const filters = {
-      search,
-      category,
-      level,
-      priceRange
-    };
-    
-    onFilterChange(filters);
-  }, [search, category, level, priceRange, onFilterChange]);
+    onApplyFilters(category, level, priceRange);
+  }, [category, level, priceRange, onApplyFilters]);
+  
+  const categories = ["Programming", "Design", "Business", "Marketing", "Data Science", "Finance"];
+  const levels = ["Beginner", "Intermediate", "Advanced"];
   
   return (
     <div className="space-y-6">
@@ -54,8 +48,8 @@ export const CourseFilters = ({ onFilterChange, categories, levels }: CourseFilt
       <div className="space-y-2">
         <Label htmlFor="category">Category</Label>
         <Select 
-          value={category} 
-          onValueChange={setCategory}
+          value={category || ""} 
+          onValueChange={(value) => setCategory(value || null)}
         >
           <SelectTrigger id="category">
             <SelectValue placeholder="All Categories" />
@@ -72,8 +66,8 @@ export const CourseFilters = ({ onFilterChange, categories, levels }: CourseFilt
       <div className="space-y-2">
         <Label htmlFor="level">Level</Label>
         <Select 
-          value={level} 
-          onValueChange={setLevel}
+          value={level || ""} 
+          onValueChange={(value) => setLevel(value || null)}
         >
           <SelectTrigger id="level">
             <SelectValue placeholder="All Levels" />

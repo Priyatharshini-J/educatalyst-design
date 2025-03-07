@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { CheckCircle2, XCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { 
@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { RadioGroup } from "@/components/ui/radio-group";
+import { quizQuestions } from '@/data/courses';
+import { useToast } from '@/hooks/use-toast';
 
 export type QuizQuestionType = {
   id: string;
@@ -21,19 +23,30 @@ export type QuizQuestionType = {
 };
 
 type QuizComponentProps = {
-  questions: QuizQuestionType[];
-  onComplete: (score: number) => void;
+  courseId: string;
+  questions?: QuizQuestionType[];
+  onComplete?: (score: number) => void;
 };
 
-export const QuizComponent = ({ questions, onComplete }: QuizComponentProps) => {
-  const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0);
-  const [selectedOption, setSelectedOption] = React.useState<number | null>(null);
-  const [isAnswerChecked, setIsAnswerChecked] = React.useState(false);
-  const [correctAnswers, setCorrectAnswers] = React.useState(0);
-  const [userAnswers, setUserAnswers] = React.useState<Record<string, number>>({});
+export const QuizComponent = ({ courseId, questions = quizQuestions, onComplete }: QuizComponentProps) => {
+  const { toast } = useToast();
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedOption, setSelectedOption] = useState<number | null>(null);
+  const [isAnswerChecked, setIsAnswerChecked] = useState(false);
+  const [correctAnswers, setCorrectAnswers] = useState(0);
+  const [userAnswers, setUserAnswers] = useState<Record<string, number>>({});
+  const [quizCompleted, setQuizCompleted] = useState(false);
   
   const currentQuestion = questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
+  
+  useEffect(() => {
+    // Check if this quiz was already completed (in a real app, this would be from the server)
+    const quizStatus = localStorage.getItem(`quiz_${courseId}_completed`);
+    if (quizStatus === 'true') {
+      setQuizCompleted(true);
+    }
+  }, [courseId]);
   
   const handleOptionSelect = (value: string) => {
     if (!isAnswerChecked) {
@@ -60,11 +73,60 @@ export const QuizComponent = ({ questions, onComplete }: QuizComponentProps) => 
     setIsAnswerChecked(false);
     
     if (isLastQuestion) {
-      onComplete(correctAnswers + (selectedOption === currentQuestion.correctAnswer ? 1 : 0));
+      const finalScore = correctAnswers + (selectedOption === currentQuestion.correctAnswer ? 1 : 0);
+      const scorePercentage = Math.round((finalScore / questions.length) * 100);
+      
+      // Store quiz completion status
+      localStorage.setItem(`quiz_${courseId}_completed`, 'true');
+      localStorage.setItem(`quiz_${courseId}_score`, scorePercentage.toString());
+      
+      setQuizCompleted(true);
+      
+      toast({
+        title: "Quiz Completed!",
+        description: `You scored ${scorePercentage}% (${finalScore}/${questions.length} correct)`,
+      });
+      
+      if (onComplete) {
+        onComplete(finalScore);
+      }
     } else {
       setCurrentQuestionIndex(prev => prev + 1);
     }
   };
+  
+  if (quizCompleted) {
+    const savedScore = localStorage.getItem(`quiz_${courseId}_score`) || "0";
+    return (
+      <Card className="w-full max-w-3xl mx-auto">
+        <CardHeader>
+          <CardTitle>Quiz Completed</CardTitle>
+          <CardDescription>
+            You've already completed this quiz
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="text-center py-6">
+          <div className="text-4xl font-bold mb-2">{savedScore}%</div>
+          <p className="text-muted-foreground">Your score</p>
+        </CardContent>
+        <CardFooter className="flex justify-center">
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              localStorage.removeItem(`quiz_${courseId}_completed`);
+              localStorage.removeItem(`quiz_${courseId}_score`);
+              setQuizCompleted(false);
+              setCurrentQuestionIndex(0);
+              setCorrectAnswers(0);
+              setUserAnswers({});
+            }}
+          >
+            Retake Quiz
+          </Button>
+        </CardFooter>
+      </Card>
+    );
+  }
   
   return (
     <Card className="w-full max-w-3xl mx-auto">
@@ -87,17 +149,19 @@ export const QuizComponent = ({ questions, onComplete }: QuizComponentProps) => 
             const isSelected = selectedOption === index;
             const isCorrect = currentQuestion.correctAnswer === index;
             
-            let className = "quiz-option";
+            let className = "flex items-center border rounded-lg p-3 cursor-pointer";
             if (isAnswerChecked) {
               if (isSelected && isCorrect) {
-                className += " correct";
+                className += " bg-green-50 border-green-200";
               } else if (isSelected && !isCorrect) {
-                className += " incorrect";
+                className += " bg-red-50 border-red-200";
               } else if (isCorrect) {
-                className += " correct";
+                className += " bg-green-50 border-green-200";
               }
             } else if (isSelected) {
-              className += " selected";
+              className += " border-primary bg-primary/5";
+            } else {
+              className += " hover:border-muted-foreground/20";
             }
             
             return (
@@ -106,7 +170,7 @@ export const QuizComponent = ({ questions, onComplete }: QuizComponentProps) => 
                 className={className}
                 onClick={() => handleOptionSelect(index.toString())}
               >
-                <div className="h-5 w-5 rounded-full border flex items-center justify-center">
+                <div className="h-5 w-5 rounded-full border mr-3 flex items-center justify-center flex-shrink-0">
                   {isAnswerChecked && isCorrect && (
                     <CheckCircle2 className="h-5 w-5 text-green-500" />
                   )}

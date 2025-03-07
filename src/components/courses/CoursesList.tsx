@@ -14,7 +14,7 @@ export const CoursesList = ({ courses, showProgress = false }: CoursesListProps)
         <CourseCard key={course.id} course={course} showProgress={showProgress} />
       ))}
       
-      <style jsx>{`
+      <style jsx global>{`
         .course-card-image {
           width: 100%;
           height: 180px;

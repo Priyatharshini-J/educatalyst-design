@@ -10,25 +10,34 @@ import {
 import { Button } from "@/components/ui/button";
 
 type LessonType = {
-  id: string;
+  id: string | number;
   title: string;
-  type: 'video' | 'reading';
+  type: 'video' | 'reading' | 'quiz' | 'assignment' | 'project';
   duration: string;
-  isLocked: boolean;
+  isLocked?: boolean;
+  isCompleted?: boolean;
 };
 
 type SectionType = {
-  id: string;
+  id: string | number;
   title: string;
+  duration: string;
   lessons: LessonType[];
 };
 
 type CourseCurriculumProps = {
   sections: SectionType[];
   isEnrolled: boolean;
+  progress?: number;
+  onProgressUpdate?: (progress: number) => void;
 };
 
-export const CourseCurriculum = ({ sections, isEnrolled }: CourseCurriculumProps) => {
+export const CourseCurriculum = ({ 
+  sections, 
+  isEnrolled,
+  progress = 0,
+  onProgressUpdate 
+}: CourseCurriculumProps) => {
   const calculateTotalLessons = () => {
     return sections.reduce((total, section) => total + section.lessons.length, 0);
   };
@@ -51,6 +60,15 @@ export const CourseCurriculum = ({ sections, isEnrolled }: CourseCurriculumProps
     return `${hours > 0 ? `${hours}h ` : ''}${minutes > 0 ? `${minutes}m` : ''}`;
   };
 
+  const handleLessonClick = (lesson: LessonType) => {
+    if (isEnrolled && onProgressUpdate && !lesson.isLocked) {
+      // In a real app, you would mark this lesson as completed
+      // For now, we'll just update the progress
+      const newProgress = Math.min(progress + 5, 100);
+      onProgressUpdate(newProgress);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -62,7 +80,7 @@ export const CourseCurriculum = ({ sections, isEnrolled }: CourseCurriculumProps
       
       <Accordion type="multiple" className="w-full">
         {sections.map((section, index) => (
-          <AccordionItem key={section.id} value={section.id}>
+          <AccordionItem key={section.id.toString()} value={section.id.toString()}>
             <AccordionTrigger className="hover:bg-muted/30 px-4 py-3 rounded-lg">
               <div className="flex justify-between items-center w-full text-left pr-4">
                 <div>
@@ -76,13 +94,14 @@ export const CourseCurriculum = ({ sections, isEnrolled }: CourseCurriculumProps
             <AccordionContent className="pt-2 pb-0">
               <ul className="space-y-1">
                 {section.lessons.map((lesson) => (
-                  <li key={lesson.id}>
+                  <li key={lesson.id.toString()}>
                     <Button
                       variant="ghost"
                       className={`w-full justify-start rounded-lg h-auto py-3 px-4 ${
-                        lesson.isLocked && !isEnrolled ? 'opacity-60' : ''
+                        (lesson.isLocked && !isEnrolled) ? 'opacity-60' : ''
                       }`}
                       disabled={lesson.isLocked && !isEnrolled}
+                      onClick={() => handleLessonClick(lesson)}
                     >
                       <div className="flex items-center gap-3 w-full">
                         <div className="flex-shrink-0">

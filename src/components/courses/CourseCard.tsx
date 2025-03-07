@@ -56,7 +56,7 @@ export const CourseCard = ({ course, showProgress = false }: CourseCardProps) =>
 
   return (
     <Card 
-      className="course-card cursor-pointer"
+      className="cursor-pointer hover:shadow-md transition-shadow"
       onClick={() => navigate(`/courses/${course.id}`)}
     >
       <div className="relative overflow-hidden">
