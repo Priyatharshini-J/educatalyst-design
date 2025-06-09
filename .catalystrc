@@ -1,0 +1,30 @@
+{
+  "defaults": {
+    "project": 1,
+    "env": 1
+  },
+  "actives": {
+    "project": 1,
+    "env": 1
+  },
+  "projects": [
+    {
+      "idx": 1,
+      "id": "12130000055744575",
+      "name": "Slate-template-apps",
+      "domain": {
+        "id": "10099800367",
+        "name": "slate-template-apps-773793963.development"
+      },
+      "timezone": "Asia/Kolkata",
+      "env": [
+        {
+          "idx": 1,
+          "id": "773793963",
+          "name": "Development",
+          "type": 3
+        }
+      ]
+    }
+  ]
+}

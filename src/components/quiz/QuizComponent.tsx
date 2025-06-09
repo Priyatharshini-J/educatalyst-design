@@ -1,19 +1,17 @@
-
-import React, { useState, useEffect } from 'react';
-import { CheckCircle2, XCircle } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { RadioGroup } from "@/components/ui/radio-group";
-import { quizQuestions } from '@/data/courses';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from "@/hooks/use-toast";
 
 export type QuizQuestionType = {
   id: string;
@@ -28,7 +26,11 @@ type QuizComponentProps = {
   onComplete?: (score: number) => void;
 };
 
-export const QuizComponent = ({ courseId, questions = quizQuestions, onComplete }: QuizComponentProps) => {
+export const QuizComponent = ({
+  courseId,
+  questions,
+  onComplete,
+}: QuizComponentProps) => {
   const { toast } = useToast();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
@@ -36,82 +38,87 @@ export const QuizComponent = ({ courseId, questions = quizQuestions, onComplete 
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [userAnswers, setUserAnswers] = useState<Record<string, number>>({});
   const [quizCompleted, setQuizCompleted] = useState(false);
-  
+
   const currentQuestion = questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
-  
+
   useEffect(() => {
     // Check if this quiz was already completed (in a real app, this would be from the server)
     const quizStatus = localStorage.getItem(`quiz_${courseId}_completed`);
-    if (quizStatus === 'true') {
+    if (quizStatus === "true") {
       setQuizCompleted(true);
     }
   }, [courseId]);
-  
+
   const handleOptionSelect = (value: string) => {
     if (!isAnswerChecked) {
       setSelectedOption(parseInt(value, 10));
     }
   };
-  
+
   const handleCheckAnswer = () => {
     if (selectedOption === null) return;
-    
+
     setIsAnswerChecked(true);
     setUserAnswers({
       ...userAnswers,
-      [currentQuestion.id]: selectedOption
+      [currentQuestion.id]: selectedOption,
     });
-    
-    if (selectedOption === currentQuestion.correctAnswer) {
-      setCorrectAnswers(prev => prev + 1);
+
+    if (Number(selectedOption) === Number(currentQuestion.correctAnswer)) {
+      setCorrectAnswers((prev) => prev + 1);
     }
   };
-  
+
   const handleNextQuestion = () => {
     setSelectedOption(null);
     setIsAnswerChecked(false);
-    
+
     if (isLastQuestion) {
-      const finalScore = correctAnswers + (selectedOption === currentQuestion.correctAnswer ? 1 : 0);
+      const finalScore =
+        correctAnswers +
+        (Number(selectedOption) === Number(currentQuestion.correctAnswer)
+          ? 1
+          : 0);
       const scorePercentage = Math.round((finalScore / questions.length) * 100);
-      
+
       // Store quiz completion status
-      localStorage.setItem(`quiz_${courseId}_completed`, 'true');
-      localStorage.setItem(`quiz_${courseId}_score`, scorePercentage.toString());
-      
+      localStorage.setItem(`quiz_${courseId}_completed`, "true");
+      localStorage.setItem(
+        `quiz_${courseId}_score`,
+        scorePercentage.toString()
+      );
+
       setQuizCompleted(true);
-      
+
       toast({
         title: "Quiz Completed!",
         description: `You scored ${scorePercentage}% (${finalScore}/${questions.length} correct)`,
       });
-      
+
       if (onComplete) {
         onComplete(finalScore);
       }
     } else {
-      setCurrentQuestionIndex(prev => prev + 1);
+      setCurrentQuestionIndex((prev) => prev + 1);
     }
   };
-  
+
   if (quizCompleted) {
     const savedScore = localStorage.getItem(`quiz_${courseId}_score`) || "0";
     return (
       <Card className="w-full max-w-3xl mx-auto">
         <CardHeader>
           <CardTitle>Quiz Completed</CardTitle>
-          <CardDescription>
-            You've already completed this quiz
-          </CardDescription>
+          <CardDescription>You've already completed this quiz</CardDescription>
         </CardHeader>
         <CardContent className="text-center py-6">
           <div className="text-4xl font-bold mb-2">{savedScore}%</div>
           <p className="text-muted-foreground">Your score</p>
         </CardContent>
         <CardFooter className="flex justify-center">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => {
               localStorage.removeItem(`quiz_${courseId}_completed`);
               localStorage.removeItem(`quiz_${courseId}_score`);
@@ -127,7 +134,7 @@ export const QuizComponent = ({ courseId, questions = quizQuestions, onComplete 
       </Card>
     );
   }
-  
+
   return (
     <Card className="w-full max-w-3xl mx-auto">
       <CardHeader>
@@ -135,21 +142,23 @@ export const QuizComponent = ({ courseId, questions = quizQuestions, onComplete 
         <CardDescription>
           Question {currentQuestionIndex + 1} of {questions.length}
         </CardDescription>
-        <Progress 
-          value={((currentQuestionIndex) / questions.length) * 100} 
+        <Progress
+          value={(currentQuestionIndex / questions.length) * 100}
           className="h-2 mt-2"
         />
       </CardHeader>
-      
+
       <CardContent className="space-y-6">
         <div className="text-xl font-medium">{currentQuestion.question}</div>
-        
+
         <RadioGroup className="gap-3">
           {currentQuestion.options.map((option, index) => {
-            const isSelected = selectedOption === index;
-            const isCorrect = currentQuestion.correctAnswer === index;
-            
-            let className = "flex items-center border rounded-lg p-3 cursor-pointer";
+            const isSelected = Number(selectedOption) === Number(index);
+            const isCorrect =
+              Number(currentQuestion.correctAnswer) === Number(index);
+
+            let className =
+              "flex items-center border rounded-lg p-3 cursor-pointer";
             if (isAnswerChecked) {
               if (isSelected && isCorrect) {
                 className += " bg-green-50 border-green-200";
@@ -163,9 +172,9 @@ export const QuizComponent = ({ courseId, questions = quizQuestions, onComplete 
             } else {
               className += " hover:border-muted-foreground/20";
             }
-            
+
             return (
-              <div 
+              <div
                 key={index}
                 className={className}
                 onClick={() => handleOptionSelect(index.toString())}
@@ -187,10 +196,10 @@ export const QuizComponent = ({ courseId, questions = quizQuestions, onComplete 
           })}
         </RadioGroup>
       </CardContent>
-      
+
       <CardFooter className="flex justify-between">
         {!isAnswerChecked ? (
-          <Button 
+          <Button
             onClick={handleCheckAnswer}
             disabled={selectedOption === null}
           >
@@ -198,13 +207,14 @@ export const QuizComponent = ({ courseId, questions = quizQuestions, onComplete 
           </Button>
         ) : (
           <Button onClick={handleNextQuestion}>
-            {isLastQuestion ? 'Finish Quiz' : 'Next Question'}
+            {isLastQuestion ? "Finish Quiz" : "Next Question"}
           </Button>
         )}
-        
+
         {isAnswerChecked && (
           <div className="flex items-center gap-2">
-            {selectedOption === currentQuestion.correctAnswer ? (
+            {Number(selectedOption) ===
+            Number(currentQuestion.correctAnswer) ? (
               <>
                 <CheckCircle2 className="h-5 w-5 text-green-500" />
                 <span className="text-green-500">Correct!</span>

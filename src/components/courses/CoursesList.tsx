@@ -1,20 +1,20 @@
-
-import React from 'react';
-import { CourseCard, CourseType } from './CourseCard';
+import React from "react";
+import { CourseCard, CourseType } from "./CourseCard";
 
 type CoursesListProps = {
   courses: CourseType[];
-  showProgress?: boolean;
 };
 
-export const CoursesList = ({ courses, showProgress = false }: CoursesListProps) => {
+export const CoursesList = ({ courses }: CoursesListProps) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {courses.map((course) => (
-        <CourseCard key={course.id} course={course} showProgress={showProgress} />
+        <CourseCard key={course.id} course={course} />
       ))}
-      
-      <style dangerouslySetInnerHTML={{ __html: `
+
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         .course-card-image {
           width: 100%;
           height: 180px;
@@ -34,7 +34,9 @@ export const CoursesList = ({ courses, showProgress = false }: CoursesListProps)
           border-radius: 3px;
           transition: width 0.3s ease;
         }
-      `}} />
+      `,
+        }}
+      />
     </div>
   );
 };

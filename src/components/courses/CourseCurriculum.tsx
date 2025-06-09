@@ -1,6 +1,5 @@
-
-import React from 'react';
-import { Play, Lock, FileText, Clock } from 'lucide-react';
+import React from "react";
+import { Play, Lock, FileText, Clock } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -12,7 +11,7 @@ import { Button } from "@/components/ui/button";
 type LessonType = {
   id: string | number;
   title: string;
-  type: 'video' | 'reading' | 'quiz' | 'assignment' | 'project';
+  type: string;
   duration: string;
   isLocked?: boolean;
   isCompleted?: boolean;
@@ -28,45 +27,37 @@ type SectionType = {
 type CourseCurriculumProps = {
   sections: SectionType[];
   isEnrolled: boolean;
-  progress?: number;
-  onProgressUpdate?: (progress: number) => void;
 };
 
-export const CourseCurriculum = ({ 
-  sections, 
+export const CourseCurriculum = ({
+  sections,
   isEnrolled,
-  progress = 0,
-  onProgressUpdate 
 }: CourseCurriculumProps) => {
   const calculateTotalLessons = () => {
-    return sections.reduce((total, section) => total + section.lessons.length, 0);
+    return sections.reduce(
+      (total, section) => total + section.lessons.length,
+      0
+    );
   };
-  
+
   const calculateTotalDuration = () => {
     let totalMinutes = 0;
-    
-    sections.forEach(section => {
-      section.lessons.forEach(lesson => {
-        const durationParts = lesson.duration.split(' ');
-        if (durationParts.length === 2 && durationParts[1] === 'min') {
+
+    sections.forEach((section) => {
+      section.lessons.forEach((lesson) => {
+        const durationParts = lesson.duration.split(" ");
+        if (durationParts.length === 2 && durationParts[1] === "min") {
           totalMinutes += parseInt(durationParts[0], 10);
         }
       });
     });
-    
+
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
-    
-    return `${hours > 0 ? `${hours}h ` : ''}${minutes > 0 ? `${minutes}m` : ''}`;
-  };
 
-  const handleLessonClick = (lesson: LessonType) => {
-    if (isEnrolled && onProgressUpdate && !lesson.isLocked) {
-      // In a real app, you would mark this lesson as completed
-      // For now, we'll just update the progress
-      const newProgress = Math.min(progress + 5, 100);
-      onProgressUpdate(newProgress);
-    }
+    return `${hours > 0 ? `${hours}h ` : ""}${
+      minutes > 0 ? `${minutes}m` : ""
+    }`;
   };
 
   return (
@@ -74,17 +65,23 @@ export const CourseCurriculum = ({
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-2xl font-bold">Course Curriculum</h2>
         <div className="text-sm text-muted-foreground">
-          {calculateTotalLessons()} lessons • {calculateTotalDuration()} total length
+          {calculateTotalLessons()} lessons • {calculateTotalDuration()} total
+          length
         </div>
       </div>
-      
+
       <Accordion type="multiple" className="w-full">
         {sections.map((section, index) => (
-          <AccordionItem key={section.id.toString()} value={section.id.toString()}>
+          <AccordionItem
+            key={section.id.toString()}
+            value={section.id.toString()}
+          >
             <AccordionTrigger className="hover:bg-muted/30 px-4 py-3 rounded-lg">
               <div className="flex justify-between items-center w-full text-left pr-4">
                 <div>
-                  <span className="font-semibold">Section {index + 1}: {section.title}</span>
+                  <span className="font-semibold">
+                    Section {index + 1}: {section.title}
+                  </span>
                 </div>
                 <div className="text-sm text-muted-foreground">
                   {section.lessons.length} lessons
@@ -98,14 +95,13 @@ export const CourseCurriculum = ({
                     <Button
                       variant="ghost"
                       className={`w-full justify-start rounded-lg h-auto py-3 px-4 ${
-                        (lesson.isLocked && !isEnrolled) ? 'opacity-60' : ''
+                        lesson.isLocked && !isEnrolled ? "opacity-60" : ""
                       }`}
                       disabled={lesson.isLocked && !isEnrolled}
-                      onClick={() => handleLessonClick(lesson)}
                     >
                       <div className="flex items-center gap-3 w-full">
                         <div className="flex-shrink-0">
-                          {lesson.type === 'video' ? (
+                          {lesson.type === "video" ? (
                             <Play className="h-4 w-4" />
                           ) : (
                             <FileText className="h-4 w-4" />
