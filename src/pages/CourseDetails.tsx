@@ -120,8 +120,6 @@ const CourseDetails = () => {
       });
   }, []);
 
-  // Find the course by ID
-
   const course = allCourses.find((c) => c.id === courseId);
 
   useEffect(() => {
@@ -209,7 +207,6 @@ const CourseDetails = () => {
           level={course.level}
           category={course.category}
           isEnrolled={isEnrolled}
-          // progress={progress}
           onEnroll={handleEnroll}
           onContinueLearning={handleContinueLearning}
         />
@@ -359,13 +356,13 @@ const CourseDetails = () => {
             </TabsContent>
 
             <TabsContent value="curriculum" className="mt-6">
-              <CourseCurriculum
-                sections={courseCurriculum}
-                isEnrolled={isEnrolled}
-                // progress={progress}
-              />
-
-              {!isEnrolled && (
+              {isEnrolled ? (
+                <CourseCurriculum
+                  sections={courseCurriculum}
+                  isEnrolled={isEnrolled}
+                  courseId={course.id}
+                />
+              ) : (
                 <div className="mt-6 p-4 bg-muted/50 rounded-lg text-center">
                   <p className="mb-4">
                     Enroll in this course to access all lessons and materials
